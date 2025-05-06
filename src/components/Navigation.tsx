@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { House, LogOut, Menu, Settings, ShoppingCart, SquarePlus, User, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Navigation = () => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -15,21 +14,21 @@ export const Navigation = () => {
     link1.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap';
     link1.rel = 'stylesheet';
     document.head.appendChild(link1);
-    
+
     const link2 = document.createElement('link');
     link2.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
     link2.rel = 'stylesheet';
     document.head.appendChild(link2);
-    
+
     const link3 = document.createElement('link');
     link3.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap';
     link3.rel = 'stylesheet';
     document.head.appendChild(link3);
-    
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -49,11 +48,13 @@ export const Navigation = () => {
   };
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'bg-white/80 shadow-md backdrop-blur-md border-b border-white/20' 
-        : 'bg-white/70 backdrop-blur-sm border-b border-gray-200/70'
-    }`}>
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/80 shadow-md backdrop-blur-md border-b border-white/20'
+          : 'bg-white/70 backdrop-blur-sm border-b border-gray-200/70'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -61,7 +62,10 @@ export const Navigation = () => {
               <div className="p-2 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg shadow-md">
                 <ShoppingCart className="text-white" size={20} />
               </div>
-              <span className="font-bold text-xl gradient-text" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <span
+                className="font-bold text-xl gradient-text"
+                style={{ fontFamily: "'Outfit', sans-serif" }}
+              >
                 ShopWise
               </span>
             </Link>
@@ -71,24 +75,41 @@ export const Navigation = () => {
           <div className="hidden md:flex items-center space-x-4">
             {currentUser ? (
               <>
-                <Link 
-                  to="/dashboard" 
-                  className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                <Link
+                  to="/dashboard"
+                  className={`nav-link ${
+                    isActive('/dashboard')
+                      ? 'nav-link-active'
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  to="/new-list" 
-                  className={`nav-link ${isActive('/new-list') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                <Link
+                  to="/new-list"
+                  className={`nav-link ${
+                    isActive('/new-list')
+                      ? 'nav-link-active'
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
                   New List
+                </Link>
+                <Link
+                  to="/settings"
+                  className={`nav-link ${
+                    isActive('/settings')
+                      ? 'nav-link-active'
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
+                >
+                  <Settings size={20} className="inline-block mr-1" />
+                  Settings
                 </Link>
                 <div className="flex items-center ml-4 pl-4 border-l border-gray-200">
                   <div className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full mr-3">
                     <User size={14} className="mr-1" />
-                    <span className="text-sm font-medium">
-                      {currentUser.name}
-                    </span>
+                    <span className="text-sm font-medium">{currentUser.name}</span>
                   </div>
                   <button
                     onClick={handleLogout}
@@ -101,14 +122,14 @@ export const Navigation = () => {
               </>
             ) : (
               <>
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/register" 
+                <Link
+                  to="/register"
                   className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-md hover:translate-y-[-1px] active:translate-y-[0px] transition duration-200"
                 >
                   Sign Up
@@ -155,6 +176,14 @@ export const Navigation = () => {
                 >
                   <SquarePlus size={18} />
                   New List
+                </Link>
+                <Link
+                  to="/settings"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings size={18} />
+                  Settings
                 </Link>
                 <button
                   onClick={() => {
