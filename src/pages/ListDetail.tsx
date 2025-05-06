@@ -10,14 +10,7 @@ import AddItemForm from '../components/AddItemForm';
 const ListDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
-    currentList, 
-    setCurrentList, 
-    totalSpent, 
-    updateItem, 
-    removeItem,
-    deleteList
-  } = useList();
+  const { currentList, setCurrentList, totalSpent, updateItem, removeItem, deleteList } = useList();
   
   const [showAddItemForm, setShowAddItemForm] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
@@ -71,10 +64,7 @@ const ListDetail = () => {
   const budgetStatus = getBudgetStatus();
 
   const handleToggleCheck = (item: GroceryItem) => {
-    updateItem({
-      ...item,
-      checked: !item.checked
-    });
+    updateItem({ ...item, checked: !item.checked });
   };
 
   const handleDeleteItem = (id: string) => {
@@ -90,7 +80,7 @@ const ListDetail = () => {
     }
   };
 
-  // Filter items by category if a filter is selected
+  // Filter items by category
   const filteredItems = selectedCategoryFilter === 'all' 
     ? currentList.items 
     : currentList.items.filter(item => item.categoryId === selectedCategoryFilter);
@@ -100,23 +90,11 @@ const ListDetail = () => {
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link 
-            to="/dashboard" 
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 transition"
-          >
-            <ChevronLeft size={18} />
-            <span>Back to Dashboard</span>
-          </Link>
-        </div>
-
         <div className="flex flex-col md:flex-row justify-between items-start gap-6">
           <div className="w-full md:w-8/12">
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-md p-6 mb-6 border border-white/50">
               <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-gray-800">
-                  {currentList.name}
-                </h1>
+                <h1 className="text-2xl font-bold text-gray-800">{currentList.name}</h1>
                 <button
                   onClick={handleDeleteList}
                   className="text-gray-400 hover:text-red-500 transition"
@@ -133,36 +111,20 @@ const ListDetail = () => {
                     ₱{remaining.toFixed(2)} remaining
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
-                  <div 
-                    className={`h-2.5 rounded-full ${budgetStatus.color}`}
-                    style={{ width: `${Math.min(percentSpent, 100)}%` }}
-                  ></div>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">
-                    ₱{totalSpent.toFixed(2)} spent
-                  </span>
-                  <span className={`${budgetStatus.text} font-medium`}>
-                    {budgetStatus.message}
-                  </span>
-                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="w-full md:w-4/12">
-            {showAddItemForm && (
-              <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">Add Item</h2>
-                  <button onClick={() => setShowAddItemForm(false)} className="text-gray-400 hover:text-gray-600">
-                    &times;
-                  </button>
-                </div>
-                <AddItemForm onCancel={() => setShowAddItemForm(false)} />
-              </div>
-            )}
+              {filteredItems.length === 0 ? (
+                <p>No items in this category.</p>
+              ) : (
+                filteredItems.map((item) => (
+                  <div key={item.id}>
+                    <span>{item.name} - ₱{(item.price * item.quantity).toFixed(2)}</span>
+                    <button onClick={() => handleToggleCheck(item)}>✔</button>
+                    <button onClick={() => handleDeleteItem(item.id)}>❌</button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
