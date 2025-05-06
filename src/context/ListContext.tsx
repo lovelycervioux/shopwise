@@ -10,7 +10,9 @@ interface ListContextType {
   updateList: (updatedList: ShoppingList) => void;
   deleteList: (id: string) => void;
   setCurrentList: (id: string | null) => void;
-  addItem: (item: Omit<GroceryItem, 'id'>) => void;
+  addItem: (
+    item: Omit<GroceryItem, 'id'> & { price: number | string; quantity: number | string }
+  ) => void;
   updateItem: (item: GroceryItem) => void;
   removeItem: (id: string) => void;
   addCategory: (name: string) => void;
@@ -52,7 +54,7 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (currentList) {
       const total = currentList.items.reduce(
-        (sum, item) => sum + (item.price * item.quantity), 
+        (sum, item) => sum + item.price * item.quantity, 
         0
       );
       setTotalSpent(total);
@@ -82,10 +84,10 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateList = (updatedList: ShoppingList) => {
-    setLists(prev => prev.map(list => 
-      list.id === updatedList.id ? updatedList : list
-    ));
-    
+    setLists(prev =>
+      prev.map(list => (list.id === updatedList.id ? updatedList : list))
+    );
+
     if (currentList?.id === updatedList.id) {
       setCurrentListState(updatedList);
     }
@@ -103,57 +105,57 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentListState(null);
       return;
     }
-    
+
     const list = lists.find(l => l.id === id) || null;
     setCurrentListState(list);
   };
 
-  const addItem = (item: Omit<GroceryItem, 'id'>) => {
+  const addItem = (
+    item: Omit<GroceryItem, 'id'> & { price: number | string; quantity: number | string }
+  ) => {
     if (!currentList) return;
-    
+
     // Ensure price and quantity are numbers
     const validatedItem = {
       ...item,
       price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
-      quantity: typeof item.quantity === 'string' ? parseInt(item.quantity.toString()) : item.quantity
+      quantity: typeof item.quantity === 'string' ? parseInt(item.quantity, 10) : item.quantity,
     };
-    
+
     const newItem: GroceryItem = {
       ...validatedItem,
       id: Date.now().toString(),
     };
-    
+
     console.log('Adding item to list:', newItem);
-    
+
     const updatedList = {
       ...currentList,
       items: [...currentList.items, newItem],
     };
-    
+
     updateList(updatedList);
   };
 
   const updateItem = (item: GroceryItem) => {
     if (!currentList) return;
-    
+
     const updatedList = {
       ...currentList,
-      items: currentList.items.map(i => 
-        i.id === item.id ? item : i
-      ),
+      items: currentList.items.map(i => (i.id === item.id ? item : i)),
     };
-    
+
     updateList(updatedList);
   };
 
   const removeItem = (id: string) => {
     if (!currentList) return;
-    
+
     const updatedList = {
       ...currentList,
       items: currentList.items.filter(i => i.id !== id),
     };
-    
+
     updateList(updatedList);
   };
 
@@ -163,7 +165,7 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name,
       isDefault: false,
     };
-    
+
     setCategories(prev => [...prev, newCategory]);
   };
 
