@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginForm = () => {
   const { login } = useAuth();
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +20,6 @@ export const LoginForm = () => {
       setLoading(true);
       setError(null);
       await login(values.email, values.password);
-      // Navigation is now handled in the login function in AuthContext
     } catch (err) {
       setError('Invalid email or password. Please try again.');
     } finally {
@@ -98,7 +95,6 @@ export const LoginForm = () => {
 
 export const RegisterForm = () => {
   const { register } = useAuth();
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -119,7 +115,6 @@ export const RegisterForm = () => {
       setLoading(true);
       setError(null);
       await register(values.name, values.email, values.password);
-      // Navigation is now handled in the register function in AuthContext
     } catch (err) {
       setError('Registration failed. Please try again.');
     } finally {
