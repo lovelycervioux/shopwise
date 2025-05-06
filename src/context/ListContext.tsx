@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import { ShoppingList, GroceryItem, Category } from '../types';
 import { defaultCategories } from '../data/initialData';
 
@@ -27,7 +27,11 @@ export const useList = () => {
   return context;
 };
 
-export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface ListProviderProps {
+  children: React.ReactNode;
+}
+
+export const ListProvider: React.FC<ListProviderProps> = ({ children }) => {
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const [currentList, setCurrentListState] = useState<ShoppingList | null>(null);
@@ -111,7 +115,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addItem = (item: Omit<GroceryItem, 'id'>) => {
     if (!currentList) return;
     
-    // Ensure price and quantity are numbers
     const validatedItem = {
       ...item,
       price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
@@ -122,8 +125,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...validatedItem,
       id: Date.now().toString(),
     };
-    
-    console.log('Adding item to list:', newItem);
     
     const updatedList = {
       ...currentList,
@@ -167,23 +168,23 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCategories(prev => [...prev, newCategory]);
   };
 
+  const contextValue = {
+    lists,
+    categories,
+    currentList,
+    createList,
+    updateList,
+    deleteList,
+    setCurrentList,
+    addItem,
+    updateItem,
+    removeItem,
+    addCategory,
+    totalSpent,
+  };
+
   return (
-    <ListContext.Provider
-      value={{
-        lists,
-        categories,
-        currentList,
-        createList,
-        updateList,
-        deleteList,
-        setCurrentList,
-        addItem,
-        updateItem,
-        removeItem,
-        addCategory,
-        totalSpent,
-      }}
-    >
+    <ListContext.Provider value={contextValue}>
       {children}
     </ListContext.Provider>
   );
