@@ -1,31 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { House, LogOut, Menu, Settings, ShoppingCart, SquarePlus, User, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { House, LogOut, Menu, ShoppingCart, SquarePlus, User, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Navigation = () => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const link1 = document.createElement('link');
-    link1.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap';
-    link1.rel = 'stylesheet';
-    document.head.appendChild(link1);
-    
-    const link2 = document.createElement('link');
-    link2.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
-    link2.rel = 'stylesheet';
-    document.head.appendChild(link2);
-    
-    const link3 = document.createElement('link');
-    link3.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap';
-    link3.rel = 'stylesheet';
-    document.head.appendChild(link3);
-    
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
@@ -33,14 +17,10 @@ export const Navigation = () => {
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      document.head.removeChild(link1);
-      document.head.removeChild(link2);
-      document.head.removeChild(link3);
     };
   }, []);
 
   const handleLogout = () => {
-    // The logout function in AuthContext now handles navigation
     logout();
   };
 
@@ -67,19 +47,26 @@ export const Navigation = () => {
             </Link>
           </div>
 
-          {/* Desktop navigation */}
           <div className="hidden md:flex items-center space-x-4">
             {currentUser ? (
               <>
                 <Link 
                   to="/dashboard" 
-                  className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/dashboard') 
+                      ? 'text-indigo-600 bg-indigo-50' 
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
                   Dashboard
                 </Link>
                 <Link 
                   to="/new-list" 
-                  className={`nav-link ${isActive('/new-list') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/new-list') 
+                      ? 'text-indigo-600 bg-indigo-50' 
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
                   New List
                 </Link>
@@ -117,7 +104,6 @@ export const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -129,7 +115,6 @@ export const Navigation = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="pt-2 pb-4 space-y-1 px-4">
