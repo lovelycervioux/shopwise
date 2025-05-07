@@ -20,68 +20,83 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper component to handle auth state at the provider level
 const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check for existing session on app load
   useEffect(() => {
     const storedUser = localStorage.getItem('shopwise_user');
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     } else if (
-      !location.pathname.includes('/login') && 
-      !location.pathname.includes('/register') && 
+      !location.pathname.includes('/login') &&
+      !location.pathname.includes('/register') &&
       location.pathname !== '/'
     ) {
-      // If no auth and trying to access protected route, redirect to login
       navigate('/login', { replace: true });
     }
   }, [navigate, location.pathname]);
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would make an API call
-    // For demo purposes, we'll just simulate user authentication
-    if (email && password) {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
+
+      const data = await response.json();
       const user: User = {
-        id: Date.now().toString(),
-        name: email.split('@')[0],
-        email,
+        id: data.id,
+        name: data.name,
+        email: data.email,
       };
-      
+
       localStorage.setItem('shopwise_user', JSON.stringify(user));
       setCurrentUser(user);
       setIsAuthenticated(true);
-      
-      // Redirect to dashboard after login
+
       navigate('/dashboard', { replace: true });
-    } else {
-      throw new Error('Invalid credentials');
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // In a real app, this would make an API call
-    // For demo purposes, we'll just simulate user registration
-    if (name && email && password) {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
       const user: User = {
-        id: Date.now().toString(),
-        name,
-        email,
+        id: data.id,
+        name: data.name,
+        email: data.email,
       };
-      
+
       localStorage.setItem('shopwise_user', JSON.stringify(user));
       setCurrentUser(user);
       setIsAuthenticated(true);
-      
-      // Redirect to dashboard after registration
+
       navigate('/dashboard', { replace: true });
-    } else {
-      throw new Error('Invalid registration data');
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
@@ -89,11 +104,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
     localStorage.removeItem('shopwise_user');
     setCurrentUser(null);
     setIsAuthenticated(false);
-    
-    // Clear any additional stored data on logout
-    localStorage.removeItem('shopwise_lists');
-    
-    // Always navigate to welcome page on logout
+
     navigate('/', { replace: true });
   };
 
@@ -104,7 +115,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   );
 };
 
-// Main provider that integrates with React Router
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <AuthStateManager>{children}</AuthStateManager>;
-};
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AuthStateManager>{children}</AuthStateManager>
+);
