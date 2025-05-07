@@ -71,7 +71,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      console.error(error.message);
+      console.error('Login Error:', error.message);
       throw error;
     }
   };
@@ -102,7 +102,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      console.error(error.message);
+      console.error('Registration Error:', error.message);
       throw error;
     }
   };
