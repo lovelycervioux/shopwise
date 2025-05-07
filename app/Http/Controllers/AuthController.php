@@ -45,12 +45,14 @@ class AuthController extends Controller
         ]);
 
         try {
+            // Attempt to create the user
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
             ]);
 
+            // Automatically log the user in upon successful registration
             Auth::login($user);
 
             return response()->json([
@@ -59,7 +61,13 @@ class AuthController extends Controller
                 'email' => $user->email,
             ], 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Registration failed. Please try again.'], 500);
+            // Log the error details for debugging
+            \Log::error('Registration Error: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Registration failed. Please try again.',
+                'error' => $e->getMessage(), // Optional: remove in production for security
+            ], 500);
         }
     }
 
