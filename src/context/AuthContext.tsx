@@ -49,7 +49,8 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       });
 
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed. Please try again.');
       }
 
       const data = await response.json();
@@ -64,8 +65,8 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       setIsAuthenticated(true);
 
       navigate('/dashboard', { replace: true });
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error(error.message);
       throw error;
     }
   };
@@ -75,11 +76,12 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, password_confirmation: password }),
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed. Please try again.');
       }
 
       const data = await response.json();
@@ -94,8 +96,8 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       setIsAuthenticated(true);
 
       navigate('/dashboard', { replace: true });
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error(error.message);
       throw error;
     }
   };
