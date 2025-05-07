@@ -55,6 +55,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Login Error Response:', errorData); // Log full error response
         throw new Error(errorData.message || 'Login failed. Please try again.');
       }
 
@@ -71,7 +72,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      console.error('Login Error:', error.message);
+      console.error('Login Error:', error.message); // Log error message
       throw error;
     }
   };
@@ -86,6 +87,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Registration Error Response:', errorData); // Log full error response
         throw new Error(errorData.message || 'Registration failed. Please try again.');
       }
 
@@ -102,7 +104,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
-      console.error('Registration Error:', error.message);
+      console.error('Registration Error:', error.message); // Log error message
       throw error;
     }
   };
