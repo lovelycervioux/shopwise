@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Show the login form.
-     */
-    public function showLogin()
-    {
-        return view('auth.login');
-    }
-    
-    /**
      * Handle a login request.
      */
     public function login(Request $request)
@@ -26,25 +18,21 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-        
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+
+            $user = Auth::user();
+            return response()->json([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ], 200);
         }
-        
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+
+        return response()->json(['message' => 'Invalid credentials'], 401);
     }
-    
-    /**
-     * Show the registration form.
-     */
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-    
+
     /**
      * Handle a registration request.
      */
@@ -55,28 +43,32 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
-        
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
-        
+
         Auth::login($user);
-        
-        return redirect()->route('dashboard');
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ], 201);
     }
-    
+
     /**
      * Log the user out.
      */
     public function logout(Request $request)
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
-        return redirect('/');
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 }
