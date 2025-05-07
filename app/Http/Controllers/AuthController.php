@@ -45,6 +45,9 @@ class AuthController extends Controller
         ]);
 
         try {
+            // Log the validated data for debugging
+            \Log::info('Registration Attempt:', $validated);
+
             // Attempt to create the user
             $user = User::create([
                 'name' => $validated['name'],
@@ -62,7 +65,7 @@ class AuthController extends Controller
             ], 201);
         } catch (\Exception $e) {
             // Log the error details for debugging
-            \Log::error('Registration Error: ' . $e->getMessage());
+            \Log::error('Registration Error:', ['message' => $e->getMessage()]);
 
             return response()->json([
                 'message' => 'Registration failed. Please try again.',
