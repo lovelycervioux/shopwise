@@ -304,22 +304,25 @@ const ListDetail = () => {
                   </button>
                 </div>
                 
-                <AddItemForm 
-                  onCancel={() => {
-                    setShowAddItemForm(false);
-                    setEditingItem(null);
-                  }}
-                  initialItem={editingItem || undefined}
-                  onSave={(item) => {
-                    if (editingItem) {
-                      updateItem({ ...item, id: editingItem.id });
-                    } else {
-                      addItem(item);
-                    }
-                    setShowAddItemForm(false);
-                    setEditingItem(null);
-                  }}
-                />
+                // In the onSave handler of the AddItemForm component
+<AddItemForm 
+  onCancel={() => {
+    setShowAddItemForm(false);
+    setEditingItem(null);
+  }}
+  initialItem={editingItem || undefined}
+  onSave={(item) => {
+    if (editingItem) {
+      updateItem({ ...item, id: editingItem.id });
+      toast.success('Item updated successfully');
+    } else {
+      addItem(item);
+      toast.success('Item added successfully');
+    }
+    setShowAddItemForm(false);
+    setEditingItem(null);
+  }}
+/>
               </div>
             )}
             
