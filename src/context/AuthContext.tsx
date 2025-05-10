@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { User } from '../types';
+import { User } from './index';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
@@ -20,80 +20,76 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper component to handle auth state at the provider level
 const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check for existing session on app load
   useEffect(() => {
     const storedUser = localStorage.getItem('shopwise_user');
+    const users = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    } else if (
-      !location.pathname.includes('/login') && 
-      !location.pathname.includes('/register') && 
-      location.pathname !== '/'
-    ) {
-      // If no auth and trying to access protected route, redirect to login
+      const user = JSON.parse(storedUser);
+      const validUser = users.find((u: User) => u.email === user.email);
+      if (validUser) {
+        setCurrentUser(validUser);
+        setIsAuthenticated(true);
+        return;
+      }
+    }
+
+    const isAuthRoute = ['/login', '/register', '/'].some(path => 
+      location.pathname.includes(path)
+    );
+    
+    if (!isAuthRoute) {
       navigate('/login', { replace: true });
     }
   }, [navigate, location.pathname]);
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would make an API call
-    // For demo purposes, we'll just simulate user authentication
-    if (email && password) {
-      const user: User = {
-        id: Date.now().toString(),
-        name: email.split('@')[0],
-        email,
-      };
-      
-      localStorage.setItem('shopwise_user', JSON.stringify(user));
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      
-      // Redirect to dashboard after login
-      navigate('/dashboard', { replace: true });
-    } else {
-      throw new Error('Invalid credentials');
-    }
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) throw new Error('Invalid email or password');
+    
+    localStorage.setItem('shopwise_user', JSON.stringify(user));
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    navigate('/dashboard', { replace: true });
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // In a real app, this would make an API call
-    // For demo purposes, we'll just simulate user registration
-    if (name && email && password) {
-      const user: User = {
-        id: Date.now().toString(),
-        name,
-        email,
-      };
-      
-      localStorage.setItem('shopwise_user', JSON.stringify(user));
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      
-      // Redirect to dashboard after registration
-      navigate('/dashboard', { replace: true });
-    } else {
-      throw new Error('Invalid registration data');
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    
+    if (users.some(u => u.email === email)) {
+      throw new Error('Email already registered');
     }
+
+    const user: User = {
+      id: Date.now().toString(),
+      name,
+      email,
+      password
+    };
+
+    localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
+    localStorage.setItem('shopwise_user', JSON.stringify(user));
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    navigate('/dashboard', { replace: true });
   };
 
   const logout = () => {
+    const userId = currentUser?.id;
     localStorage.removeItem('shopwise_user');
+    if (userId) {
+      localStorage.removeItem(`shopwise_lists_${userId}`);
+    }
     setCurrentUser(null);
     setIsAuthenticated(false);
-    
-    // Clear any additional stored data on logout
-    localStorage.removeItem('shopwise_lists');
-    
-    // Always navigate to welcome page on logout
     navigate('/', { replace: true });
   };
 
@@ -104,7 +100,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   );
 };
 
-// Main provider that integrates with React Router
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <AuthStateManager>{children}</AuthStateManager>;
 };
