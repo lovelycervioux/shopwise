@@ -428,7 +428,7 @@ const ListDetail = () => {
                             <div className="text-sm font-medium">
                               ₱{amount.toFixed(2)}
                               <span className="text-gray-400 text-xs ml-1">
-                                ({Math.round((amount / totalSpent) * 100 || 0}%)
+                                ({Math.round((amount / totalSpent) * 100) || 0}%)
                               </span>
                             </div>
                           </div>
