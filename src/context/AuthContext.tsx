@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { User } from './index';
+import { User } from '../types';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
@@ -26,73 +26,71 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check authentication status on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem('shopwise_user');
-    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
-
+    const users = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      const validUser = allUsers.find((u: User) => u.email === parsedUser.email);
+      const user = JSON.parse(storedUser);
+      const validUser = users.find((u: User) => u.email === user.email);
       if (validUser) {
         setCurrentUser(validUser);
         setIsAuthenticated(true);
+        return;
       }
     }
 
-    // Redirect if unauthenticated
-    const isPublicRoute = ['/login', '/register', '/'].includes(location.pathname);
-    if (!isPublicRoute && !validUser) {
-      navigate('/login');
+    if (
+      !location.pathname.includes('/login') && 
+      !location.pathname.includes('/register') && 
+      location.pathname !== '/'
+    ) {
+      navigate('/login', { replace: true });
     }
   }, [navigate, location.pathname]);
 
-  // Login function
   const login = async (email: string, password: string) => {
-    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
-    const user = allUsers.find((u: User) => u.email === email && u.password === password);
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const user = users.find(u => u.email === email && u.password === password);
 
     if (!user) throw new Error('Invalid email or password');
     
     localStorage.setItem('shopwise_user', JSON.stringify(user));
     setCurrentUser(user);
     setIsAuthenticated(true);
-    navigate('/dashboard');
+    navigate('/dashboard', { replace: true });
   };
 
-  // Registration function
   const register = async (name: string, email: string, password: string) => {
-    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
     
-    if (allUsers.some((u: User) => u.email === email)) {
+    if (users.some(u => u.email === email)) {
       throw new Error('Email already registered');
     }
 
-    const newUser: User = {
+    const user: User = {
       id: Date.now().toString(),
       name,
       email,
       password
     };
 
-    localStorage.setItem('shopwise_users', JSON.stringify([...allUsers, newUser]));
-    localStorage.setItem('shopwise_user', JSON.stringify(newUser));
-    setCurrentUser(newUser);
+    localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
+    localStorage.setItem('shopwise_user', JSON.stringify(user));
+    setCurrentUser(user);
     setIsAuthenticated(true);
-    navigate('/dashboard');
+    navigate('/dashboard', { replace: true });
   };
 
-  // Logout function
   const logout = () => {
     const userId = currentUser?.id;
     localStorage.removeItem('shopwise_user');
     if (userId) {
-      // Clear user-specific data
       localStorage.removeItem(`shopwise_lists_${userId}`);
     }
     setCurrentUser(null);
     setIsAuthenticated(false);
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   return (
