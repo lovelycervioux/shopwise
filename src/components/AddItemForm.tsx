@@ -52,29 +52,27 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
     quantity: string | number; 
     categoryId: string 
   }, { resetForm }: { resetForm: () => void }) => {
-    const price = typeof values.price === 'string' ? parseFloat(values.price) : values.price;
-    const quantity = typeof values.quantity === 'string' ? parseInt(values.quantity) : values.quantity;
-    const totalCost = price * quantity;
-    
-    onSave({
-      name: values.name,
-      price: price,
-      quantity: quantity,
-      categoryId: values.categoryId,
-      checked: initialItem?.checked || false,
-    });
+    try {
+      const price = typeof values.price === 'string' ? 
+        parseFloat(values.price) : values.price;
+      const quantity = typeof values.quantity === 'string' ? 
+        parseInt(values.quantity) : values.quantity;
 
-    if (totalCost > remaining) {
-      toast.warning(`Item ${initialItem ? 'updated' : 'added'}, but you're now over budget by ₱${(totalCost - remaining).toFixed(2)}`);
-    } else {
-      toast.success(`Item ${initialItem ? 'updated' : 'added'}! Remaining budget: ₱${(remaining - totalCost).toFixed(2)}`);
+      onSave({
+        name: values.name,
+        price: price,
+        quantity: quantity,
+        categoryId: values.categoryId,
+        checked: initialItem?.checked || false,
+      });
+
+      resetForm();
+      setPreviewTotal(null);
+      setPreviewPrice(0);
+      setPreviewQuantity(1);
+    } catch (error) {
+      toast.error('Failed to save item. Please try again.');
     }
-    
-    resetForm();
-    setPreviewTotal(null);
-    setPreviewPrice(0);
-    setPreviewQuantity(1);
-    onCancel();
   };
 
   const handleAddCategory = () => {
