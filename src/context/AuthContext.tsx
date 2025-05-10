@@ -26,12 +26,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load user-specific data when authentication changes
-  const loadUserData = (user: User) => {
-    const userLists = localStorage.getItem(`shopwise_lists_${user.id}`) || '[]';
-    return JSON.parse(userLists);
-  };
-
   useEffect(() => {
     const storedUser = localStorage.getItem('shopwise_user');
     const users = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
@@ -42,11 +36,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       if (validUser) {
         setCurrentUser(validUser);
         setIsAuthenticated(true);
-        
-        // Initialize empty list if new user
-        if (!localStorage.getItem(`shopwise_lists_${validUser.id}`)) {
-          localStorage.setItem(`shopwise_lists_${validUser.id}`, '[]');
-        }
         return;
       }
     }
@@ -66,12 +55,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
     if (!user) throw new Error('Invalid email or password');
     
-    // Load user-specific data
-    const userData = {
-      ...user,
-      lists: loadUserData(user)
-    };
-
     localStorage.setItem('shopwise_user', JSON.stringify(user));
     setCurrentUser(user);
     setIsAuthenticated(true);
@@ -92,7 +75,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       password
     };
 
-    // Initialize empty data for new user
+    // Initialize user-specific data
     localStorage.setItem(`shopwise_lists_${user.id}`, '[]');
     localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
     localStorage.setItem('shopwise_user', JSON.stringify(user));
@@ -102,7 +85,6 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   const logout = () => {
-    const userId = currentUser?.id;
     localStorage.removeItem('shopwise_user');
     setCurrentUser(null);
     setIsAuthenticated(false);
