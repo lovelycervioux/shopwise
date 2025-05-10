@@ -1,30 +1,33 @@
+// REGISTER FORM
 export const RegisterForm = () => {
   const { register } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().required('Required'),
     email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required')
-      .test('unique-email', 'Email already registered', (value) => {
+      .email('Invalid email')
+      .required('Required')
+      .test('unique-email', 'Email already exists', (value) => {
         const users = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
         return !users.some((user: User) => user.email === value);
       }),
     password: Yup.string()
-      .min(8, 'Password must be at least 8 characters')
-      .required('Password is required'),
+      .min(8, 'Minimum 8 characters')
+      .required('Required'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password')], 'Passwords must match')
-      .required('Confirm Password is required'),
+      .required('Required')
   });
 
-  const handleSubmit = async (values: { name: string; email: string; password: string }) => {
+  const handleSubmit = async (values: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     try {
       setLoading(true);
-      setError(null);
       await register(values.name, values.email, values.password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -34,27 +37,43 @@ export const RegisterForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Create Your Account</h2>
-      
-      {error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
-          {error}
-        </div>
-      )}
-      
-      <Formik
-        initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form>
-            {/* Keep existing form fields same, only validation changed */}
-            {/* ... rest of your form JSX ... */}
-          </Form>
-        )}
-      </Formik>
-    </div>
+    <Formik
+      initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {/* Your existing form UI here */}
+    </Formik>
+  );
+};
+
+// LOGIN FORM
+export const LoginForm = () => {
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    try {
+      setLoading(true);
+      await login(values.email, values.password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Formik
+      initialValues={{ email: '', password: '' }}
+      validationSchema={Yup.object({
+        email: Yup.string().email('Invalid email').required('Required'),
+        password: Yup.string().required('Required')
+      })}
+      onSubmit={handleSubmit}
+    >
+      {/* Your existing login form UI here */}
+    </Formik>
   );
 };
