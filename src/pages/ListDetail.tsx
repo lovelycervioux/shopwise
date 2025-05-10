@@ -17,7 +17,8 @@ const ListDetail = () => {
     totalSpent, 
     updateItem, 
     removeItem,
-    deleteList
+    deleteList,
+    addItem
   } = useList();
   
   const [showAddItemForm, setShowAddItemForm] = useState(false);
@@ -102,8 +103,8 @@ const ListDetail = () => {
     : currentList.items.filter(item => item.categoryId === selectedCategoryFilter);
 
   const uniqueCategories = Array.from(
-  new Set(currentList.items.map(item => item.categoryId))
-);
+    new Set(currentList.items.map(item => item.categoryId))
+  );
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -304,25 +305,22 @@ const ListDetail = () => {
                   </button>
                 </div>
                 
-                // In the onSave handler of the AddItemForm component
-<AddItemForm 
-  onCancel={() => {
-    setShowAddItemForm(false);
-    setEditingItem(null);
-  }}
-  initialItem={editingItem || undefined}
-  onSave={(item) => {
-    if (editingItem) {
-      updateItem({ ...item, id: editingItem.id });
-      toast.success('Item updated successfully');
-    } else {
-      addItem(item);
-      toast.success('Item added successfully');
-    }
-    setShowAddItemForm(false);
-    setEditingItem(null);
-  }}
-/>
+                <AddItemForm 
+                  onCancel={() => {
+                    setShowAddItemForm(false);
+                    setEditingItem(null);
+                  }}
+                  initialItem={editingItem || undefined}
+                  onSave={(item) => {
+                    if (editingItem) {
+                      updateItem({ ...item, id: editingItem.id });
+                    } else {
+                      addItem(item);
+                    }
+                    setShowAddItemForm(false);
+                    setEditingItem(null);
+                  }}
+                />
               </div>
             )}
             
@@ -330,7 +328,123 @@ const ListDetail = () => {
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Shopping Summary</h2>
                 
-                {/* Keep the rest of the summary section unchanged */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-gray-600 text-sm">Budget Used:</span>
+                    <span className={`text-sm font-medium ${
+                      percentSpent >= 100 ? 'text-red-600' : percentSpent >= 85 ? 'text-orange-600' : 'text-green-600'
+                    }`}>
+                      {Math.min(100, Math.round(percentSpent))}%
+                    </span>
+                  </div>
+                  <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        percentSpent >= 100 ? 'bg-red-500' : 
+                        percentSpent >= 85 ? 'bg-orange-500' : 
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min(100, percentSpent)}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>₱0</span>
+                    <span>₱{currentList.budget.toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Items:</span>
+                    <span className="font-medium">{currentList.items.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Items Checked:</span>
+                    <span className="font-medium">
+                      {currentList.items.filter(item => item.checked).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Budget:</span>
+                    <span className="font-medium">₱{currentList.budget.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Spent:</span>
+                    <span className={`font-medium ${totalSpent > currentList.budget ? 'text-red-600' : ''}`}>
+                      ₱{totalSpent.toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <div className="border-t pt-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-800 font-medium">Remaining:</span>
+                      <span className={`font-bold ${remaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        ₱{remaining.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {remaining < 0 && (
+                  <div className="bg-red-50 p-3 rounded-lg flex gap-2 text-red-600 mb-4">
+                    <CircleAlert size={18} />
+                    <span className="text-sm">You've exceeded your budget by ₱{Math.abs(remaining).toFixed(2)}</span>
+                  </div>
+                )}
+                
+                <div className="mb-4">
+                  <button
+                    onClick={() => setShowCategoryBreakdown(!showCategoryBreakdown)}
+                    className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <span className="flex items-center gap-2 text-gray-700">
+                      <ChartPie size={16} />
+                      <span className="font-medium">Category Breakdown</span>
+                    </span>
+                    <span className="text-gray-400">
+                      {showCategoryBreakdown ? '−' : '+'}
+                    </span>
+                  </button>
+                </div>
+                
+                {showCategoryBreakdown && (
+                  <div className="border border-gray-200 rounded-lg p-3 mb-4 bg-gray-50">
+                    {currentList.items.length === 0 ? (
+                      <p className="text-gray-500 text-sm text-center py-2">No items to display</p>
+                    ) : (
+                      <>
+                        {Array.from(
+                          currentList.items.reduce((acc, item) => {
+                            const category = item.categoryId;
+                            const total = (acc.get(category) || 0) + (item.price * item.quantity);
+                            return acc.set(category, total);
+                          }, new Map<string, number>())
+                        ).map(([category, amount]) => (
+                          <div key={category} className="flex justify-between items-center py-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                              <span className="text-sm text-gray-700">{category}</span>
+                            </div>
+                            <div className="text-sm font-medium">
+                              ₱{amount.toFixed(2)}
+                              <span className="text-gray-400 text-xs ml-1">
+                                ({Math.round((amount / totalSpent) * 100 || 0}%)
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+                
+                <button
+                  onClick={() => setShowAddItemForm(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-primary text-white rounded-lg hover:shadow-md transition hover:translate-y-[-1px] active:translate-y-[0px]"
+                >
+                  <Plus size={18} />
+                  Add Item
+                </button>
               </div>
             )}
           </div>
