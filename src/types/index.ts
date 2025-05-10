@@ -1,7 +1,9 @@
+// Add password field to User interface
 export interface User {
   id: string;
   name: string;
   email: string;
+  password: string; // Add this line
 }
 
 export interface Category {
