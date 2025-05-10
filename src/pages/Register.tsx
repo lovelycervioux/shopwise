@@ -15,7 +15,6 @@ const Register = () => {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
     
-    // If user is already authenticated, redirect to dashboard
     if (isAuthenticated) {
       navigate('/dashboard');
     }
