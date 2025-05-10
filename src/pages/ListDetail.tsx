@@ -317,8 +317,8 @@ const ListDetail = () => {
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>$0</span>
-                    <span>${currentList.budget.toFixed(2)}</span>
+                    <span>₱0</span>
+                    <span>₱{currentList.budget.toFixed(2)}</span>
                   </div>
                 </div>
                 
