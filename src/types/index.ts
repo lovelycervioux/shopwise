@@ -2,9 +2,10 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string; // Added password field
+  password: string; // Add this line
 }
 
+// Keep other existing interfaces
 export interface Category {
   id: string;
   name: string;
