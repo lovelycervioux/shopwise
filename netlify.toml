@@ -1,0 +1,4 @@
+[build]
+base = "lovelycervioux/shopwise"
+publish = "dist"
+command = "npm run build"
