@@ -26,71 +26,73 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Check authentication status on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem('shopwise_user');
-    const users = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
-    
+    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+
     if (storedUser) {
-      const user = JSON.parse(storedUser);
-      const validUser = users.find((u: User) => u.email === user.email);
+      const parsedUser = JSON.parse(storedUser);
+      const validUser = allUsers.find((u: User) => u.email === parsedUser.email);
       if (validUser) {
         setCurrentUser(validUser);
         setIsAuthenticated(true);
-        return;
       }
     }
 
-    const isAuthRoute = ['/login', '/register', '/'].some(path => 
-      location.pathname.includes(path)
-    );
-    
-    if (!isAuthRoute) {
-      navigate('/login', { replace: true });
+    // Redirect if unauthenticated
+    const isPublicRoute = ['/login', '/register', '/'].includes(location.pathname);
+    if (!isPublicRoute && !validUser) {
+      navigate('/login');
     }
   }, [navigate, location.pathname]);
 
+  // Login function
   const login = async (email: string, password: string) => {
-    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
+    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const user = allUsers.find((u: User) => u.email === email && u.password === password);
 
     if (!user) throw new Error('Invalid email or password');
     
     localStorage.setItem('shopwise_user', JSON.stringify(user));
     setCurrentUser(user);
     setIsAuthenticated(true);
-    navigate('/dashboard', { replace: true });
+    navigate('/dashboard');
   };
 
+  // Registration function
   const register = async (name: string, email: string, password: string) => {
-    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const allUsers = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
     
-    if (users.some(u => u.email === email)) {
+    if (allUsers.some((u: User) => u.email === email)) {
       throw new Error('Email already registered');
     }
 
-    const user: User = {
+    const newUser: User = {
       id: Date.now().toString(),
       name,
       email,
       password
     };
 
-    localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
-    localStorage.setItem('shopwise_user', JSON.stringify(user));
-    setCurrentUser(user);
+    localStorage.setItem('shopwise_users', JSON.stringify([...allUsers, newUser]));
+    localStorage.setItem('shopwise_user', JSON.stringify(newUser));
+    setCurrentUser(newUser);
     setIsAuthenticated(true);
-    navigate('/dashboard', { replace: true });
+    navigate('/dashboard');
   };
 
+  // Logout function
   const logout = () => {
     const userId = currentUser?.id;
     localStorage.removeItem('shopwise_user');
     if (userId) {
+      // Clear user-specific data
       localStorage.removeItem(`shopwise_lists_${userId}`);
     }
     setCurrentUser(null);
     setIsAuthenticated(false);
-    navigate('/', { replace: true });
+    navigate('/');
   };
 
   return (
