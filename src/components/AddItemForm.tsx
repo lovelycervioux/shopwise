@@ -4,21 +4,24 @@ import * as Yup from 'yup';
 import { useList } from '../context/ListContext';
 import { toast } from 'react-toastify';
 import { CircleAlert, DollarSign, Plus } from 'lucide-react';
+import { GroceryItem } from '../types';
 
 interface AddItemFormProps {
   onCancel: () => void;
+  initialItem?: GroceryItem;
+  onSave: (item: Omit<GroceryItem, 'id'>) => void;
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel }) => {
-  const { addItem, categories, addCategory, currentList, totalSpent } = useList();
+const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave }) => {
+  const { categories, addCategory, currentList, totalSpent } = useList();
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
-  const [previewPrice, setPreviewPrice] = useState<number>(0);
-  const [previewQuantity, setPreviewQuantity] = useState<number>(1);
+  const [previewPrice, setPreviewPrice] = useState<number>(initialItem?.price || 0);
+  const [previewQuantity, setPreviewQuantity] = useState<number>(initialItem?.quantity || 1);
   
   const budget = currentList?.budget || 0;
-  const remaining = budget - totalSpent;
+  const remaining = budget - totalSpent + (initialItem?.price || 0) * (initialItem?.quantity || 0);
   const wouldExceedBudget = previewTotal !== null && previewTotal > remaining;
 
   const validationSchema = Yup.object({
@@ -35,7 +38,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel }) => {
     categoryId: Yup.string().required('Category is required'),
   });
 
-  // Calculate preview total when price or quantity changes
   useEffect(() => {
     if (previewPrice && previewQuantity) {
       setPreviewTotal(previewPrice * previewQuantity);
@@ -44,32 +46,35 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel }) => {
     }
   }, [previewPrice, previewQuantity]);
 
-  const handleSubmit = (values: { name: string; price: string | number; quantity: string | number; categoryId: string }, { resetForm }: { resetForm: () => void }) => {
+  const handleSubmit = (values: { 
+    name: string; 
+    price: string | number; 
+    quantity: string | number; 
+    categoryId: string 
+  }, { resetForm }: { resetForm: () => void }) => {
     const price = typeof values.price === 'string' ? parseFloat(values.price) : values.price;
     const quantity = typeof values.quantity === 'string' ? parseInt(values.quantity) : values.quantity;
     const totalCost = price * quantity;
     
-    console.log('Form values:', values);
-    console.log('Parsed values:', { price, quantity, totalCost });
-    
-    addItem({
+    onSave({
       name: values.name,
       price: price,
       quantity: quantity,
       categoryId: values.categoryId,
-      checked: false,
+      checked: initialItem?.checked || false,
     });
-    
+
     if (totalCost > remaining) {
-      toast.warning(`Item added, but you're now over budget by ₱${(totalCost - remaining).toFixed(2)}`);
+      toast.warning(`Item ${initialItem ? 'updated' : 'added'}, but you're now over budget by ₱${(totalCost - remaining).toFixed(2)}`);
     } else {
-      toast.success(`Item added! Remaining budget: ₱${(remaining - totalCost).toFixed(2)}`);
+      toast.success(`Item ${initialItem ? 'updated' : 'added'}! Remaining budget: ₱${(remaining - totalCost).toFixed(2)}`);
     }
     
     resetForm();
     setPreviewTotal(null);
     setPreviewPrice(0);
     setPreviewQuantity(1);
+    onCancel();
   };
 
   const handleAddCategory = () => {
@@ -83,7 +88,12 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel }) => {
 
   return (
     <Formik
-      initialValues={{ name: '', price: '', quantity: '1', categoryId: '' }}
+      initialValues={{ 
+        name: initialItem?.name || '', 
+        price: initialItem?.price.toString() || '', 
+        quantity: initialItem?.quantity.toString() || '1', 
+        categoryId: initialItem?.categoryId || '' 
+      }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -244,7 +254,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel }) => {
                     : 'bg-gradient-primary hover:shadow-md'
                 } text-white rounded-lg transition text-sm hover:translate-y-[-1px] active:translate-y-[0px]`}
               >
-                {wouldExceedBudget ? 'Add Anyway (Over Budget)' : 'Add to List'}
+                {wouldExceedBudget 
+                  ? `${initialItem ? 'Update' : 'Add'} Anyway (Over Budget)` 
+                  : `${initialItem ? 'Update' : 'Add to List'}`}
               </button>
             </div>
           </div>
