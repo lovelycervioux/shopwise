@@ -35,7 +35,7 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentList, setCurrentListState] = useState<ShoppingList | null>(null);
   const [totalSpent, setTotalSpent] = useState<number>(0);
 
-  // User-specific data keys
+  // User-specific storage keys
   const listsKey = `shopwise_lists_${currentUser?.id || 'guest'}`;
   const categoriesKey = `shopwise_categories_${currentUser?.id || 'guest'}`;
 
@@ -54,6 +54,9 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     localStorage.setItem(listsKey, JSON.stringify(lists));
+    if (currentList) {
+      setCurrentListState(lists.find(l => l.id === currentList.id) || null);
+    }
   }, [lists]);
 
   useEffect(() => {
@@ -72,7 +75,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentList]);
 
-  // Keep all existing functions unchanged
   const createList = (name: string, budget: number) => {
     const newList: ShoppingList = {
       id: Date.now().toString(),
@@ -89,7 +91,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLists(prev => prev.map(list => 
       list.id === updatedList.id ? updatedList : list
     ));
-    
     if (currentList?.id === updatedList.id) {
       setCurrentListState(updatedList);
     }
@@ -107,7 +108,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentListState(null);
       return;
     }
-    
     const list = lists.find(l => l.id === id) || null;
     setCurrentListState(list);
   };
@@ -115,19 +115,10 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addItem = (item: Omit<GroceryItem, 'id'>) => {
     if (!currentList) return;
     
-    // Ensure price and quantity are numbers
-    const validatedItem = {
-      ...item,
-      price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
-      quantity: typeof item.quantity === 'string' ? parseInt(item.quantity.toString()) : item.quantity
-    };
-    
     const newItem: GroceryItem = {
-      ...validatedItem,
+      ...item,
       id: Date.now().toString(),
     };
-    
-    console.log('Adding item to list:', newItem);
     
     const updatedList = {
       ...currentList,
@@ -167,7 +158,6 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name,
       isDefault: false,
     };
-    
     setCategories(prev => [...prev, newCategory]);
   };
 
