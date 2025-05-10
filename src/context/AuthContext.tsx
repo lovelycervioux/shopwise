@@ -32,17 +32,22 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
     
     if (storedUser) {
       const user = JSON.parse(storedUser);
-      const validUser = users.find((u: User) => u.email === user.email && u.password === user.password);
+      const validUser = users.find((u: User) => u.email === user.email);
       if (validUser) {
         setCurrentUser(validUser);
         setIsAuthenticated(true);
+        if (!localStorage.getItem(`shopwise_lists_${validUser.id}`)) {
+          localStorage.setItem(`shopwise_lists_${validUser.id}`, '[]');
+        }
         return;
       }
     }
 
-    if (!['/login', '/register', '/'].some(path => location.pathname.includes(path))) {
-      navigate('/login', { replace: true });
-    }
+    const isAuthRoute = ['/login', '/register', '/'].some(path => 
+      location.pathname.includes(path)
+    );
+    
+    if (!isAuthRoute) navigate('/login', { replace: true });
   }, [navigate, location.pathname]);
 
   const login = async (email: string, password: string) => {
@@ -73,6 +78,7 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
 
     localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
     localStorage.setItem('shopwise_user', JSON.stringify(user));
+    localStorage.setItem(`shopwise_lists_${user.id}`, '[]');
     setCurrentUser(user);
     setIsAuthenticated(true);
     navigate('/dashboard', { replace: true });
