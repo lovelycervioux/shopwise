@@ -17,9 +17,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [previewTotal, setPreviewTotal] = useState<number | null>(null);
-  const [previewPrice, setPreviewPrice] = useState<number>(initialItem?.price || 0);
-  const [previewQuantity, setPreviewQuantity] = useState<number>(initialItem?.quantity || 1);
-  
+  const [previewPrice, setPreviewPrice] = useState(initialItem?.price || 0);
+  const [previewQuantity, setPreviewQuantity] = useState(initialItem?.quantity || 1);
+
   const budget = currentList?.budget || 0;
   const remaining = budget - totalSpent + (initialItem?.price || 0) * (initialItem?.quantity || 0);
   const wouldExceedBudget = previewTotal !== null && previewTotal > remaining;
@@ -28,57 +28,40 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
     name: Yup.string().required('Item name is required'),
     price: Yup.number()
       .required('Price is required')
-      .min(0, 'Price must be a positive number')
-      .typeError('Price must be a number'),
+      .min(0, 'Price must be positive')
+      .typeError('Enter a valid number'),
     quantity: Yup.number()
       .required('Quantity is required')
-      .min(1, 'Quantity must be at least 1')
-      .integer('Quantity must be a whole number')
-      .typeError('Quantity must be a number'),
-    categoryId: Yup.string().required('Category is required'),
+      .min(1, 'Minimum 1')
+      .integer('Must be whole number')
+      .typeError('Enter a valid number'),
+    categoryId: Yup.string().required('Category is required')
   });
 
   useEffect(() => {
-    if (previewPrice && previewQuantity) {
-      setPreviewTotal(previewPrice * previewQuantity);
-    } else {
-      setPreviewTotal(null);
-    }
+    const total = (previewPrice || 0) * (previewQuantity || 1);
+    setPreviewTotal(isNaN(total) ? null : total);
   }, [previewPrice, previewQuantity]);
 
-  const handleSubmit = (values: { 
-    name: string; 
-    price: string | number; 
-    quantity: string | number; 
-    categoryId: string 
-  }, { resetForm }: { resetForm: () => void }) => {
+  const handleSubmit = (values: any, { resetForm }: any) => {
     try {
-      const price = typeof values.price === 'string' ? 
-        parseFloat(values.price) : values.price;
-      const quantity = typeof values.quantity === 'string' ? 
-        parseInt(values.quantity) : values.quantity;
-
       onSave({
         name: values.name,
-        price: price,
-        quantity: quantity,
+        price: parseFloat(values.price),
+        quantity: parseInt(values.quantity),
         categoryId: values.categoryId,
-        checked: initialItem?.checked || false,
+        checked: initialItem?.checked || false
       });
-
       resetForm();
-      setPreviewTotal(null);
-      setPreviewPrice(0);
-      setPreviewQuantity(1);
+      onCancel();
     } catch (error) {
-      toast.error('Failed to save item. Please try again.');
+      toast.error('Failed to save item');
     }
   };
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
       addCategory(newCategory.trim());
-      toast.success(`Added category: ${newCategory}`);
       setNewCategory('');
       setShowNewCategory(false);
     }
@@ -88,8 +71,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
     <Formik
       initialValues={{ 
         name: initialItem?.name || '', 
-        price: initialItem?.price.toString() || '', 
-        quantity: initialItem?.quantity.toString() || '1', 
+        price: initialItem?.price?.toString() || '', 
+        quantity: initialItem?.quantity?.toString() || '1', 
         categoryId: initialItem?.categoryId || '' 
       }}
       validationSchema={validationSchema}
@@ -99,73 +82,52 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
         <Form>
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-gray-700 font-medium mb-1 text-sm">
-                Item Name
-              </label>
+              <label className="block text-gray-700 font-medium mb-1 text-sm">Item Name</label>
               <Field
-                type="text"
                 name="name"
-                id="name"
-                placeholder="Apple, Milk, Bread, etc."
+                placeholder="Apple, Milk, Bread"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
               />
               <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="price" className="block text-gray-700 font-medium mb-1 text-sm">
-                  Price
-                </label>
+                <label className="block text-gray-700 font-medium mb-1 text-sm">Price</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <span className="text-gray-500">₱</span>
-                  </div>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">₱</span>
                   <Field
-                    type="number"
                     name="price"
-                    id="price"
-                    placeholder="0.00"
+                    type="number"
                     step="0.01"
-                    min="0"
                     className="w-full pl-7 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    onChange={(e: any) => {
                       setFieldValue('price', e.target.value);
-                      const value = parseFloat(e.target.value);
-                      setPreviewPrice(isNaN(value) ? 0 : value);
+                      setPreviewPrice(parseFloat(e.target.value) || 0);
                     }}
                   />
                 </div>
                 <ErrorMessage name="price" component="div" className="text-red-500 text-xs mt-1" />
               </div>
-              
+
               <div>
-                <label htmlFor="quantity" className="block text-gray-700 font-medium mb-1 text-sm">
-                  Quantity
-                </label>
+                <label className="block text-gray-700 font-medium mb-1 text-sm">Quantity</label>
                 <Field
-                  type="number"
                   name="quantity"
-                  id="quantity"
-                  placeholder="1"
-                  min="1"
-                  step="1"
+                  type="number"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(e: any) => {
                     setFieldValue('quantity', e.target.value);
-                    const value = parseInt(e.target.value);
-                    setPreviewQuantity(isNaN(value) ? 1 : value);
+                    setPreviewQuantity(parseInt(e.target.value) || 1);
                   }}
                 />
                 <ErrorMessage name="quantity" component="div" className="text-red-500 text-xs mt-1" />
               </div>
             </div>
-            
+
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label htmlFor="categoryId" className="block text-gray-700 font-medium text-sm">
-                  Category
-                </label>
+                <label className="block text-gray-700 font-medium text-sm">Category</label>
                 {!showNewCategory && (
                   <button
                     type="button"
@@ -176,14 +138,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
                   </button>
                 )}
               </div>
-              
+
               {showNewCategory ? (
                 <div className="flex gap-2">
                   <input
-                    type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="New category name"
+                    placeholder="New category"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
                   />
                   <button
@@ -205,32 +166,28 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
                 <Field
                   as="select"
                   name="categoryId"
-                  id="categoryId"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm appearance-none bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
                 >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
+                  <option value="">Select category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.name}>{category.name}</option>
                   ))}
                 </Field>
               )}
               <ErrorMessage name="categoryId" component="div" className="text-red-500 text-xs mt-1" />
             </div>
-            
+
             {previewTotal !== null && (
-              <div className={`mt-4 p-3 rounded-lg ${wouldExceedBudget ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'} flex items-start gap-2 text-sm`}>
-                {wouldExceedBudget ? <CircleAlert size={16} className="mt-0.5" /> : <DollarSign size={16} className="mt-0.5" />}
+              <div className={`p-3 rounded-lg flex gap-2 text-sm ${
+                wouldExceedBudget ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+              }`}>
+                {wouldExceedBudget ? <CircleAlert size={16} /> : <DollarSign size={16} />}
                 <div>
-                  <p className="font-medium">
-                    Item total: ₱{previewTotal.toFixed(2)}
+                  <p className="font-medium">Total: ₱{previewTotal.toFixed(2)}</p>
+                  <p>{wouldExceedBudget 
+                    ? `Exceeds budget by ₱${(previewTotal - remaining).toFixed(2)}`
+                    : `Remaining: ₱${(remaining - previewTotal).toFixed(2)}`}
                   </p>
-                  {wouldExceedBudget ? (
-                    <p>This will exceed your remaining budget by ₱{(previewTotal - remaining).toFixed(2)}</p>
-                  ) : (
-                    <p>Budget remaining after adding: ₱{(remaining - previewTotal).toFixed(2)}</p>
-                  )}
                 </div>
               </div>
             )}
@@ -250,11 +207,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
                   wouldExceedBudget 
                     ? 'bg-gradient-warning hover:shadow-md' 
                     : 'bg-gradient-primary hover:shadow-md'
-                } text-white rounded-lg transition text-sm hover:translate-y-[-1px] active:translate-y-[0px]`}
+                } text-white rounded-lg transition text-sm`}
               >
-                {wouldExceedBudget 
-                  ? `${initialItem ? 'Update' : 'Add'} Anyway (Over Budget)` 
-                  : `${initialItem ? 'Update' : 'Add to List'}`}
+                {initialItem ? 'Update Item' : 'Add to List'}
               </button>
             </div>
           </div>
