@@ -102,8 +102,8 @@ const ListDetail = () => {
     : currentList.items.filter(item => item.categoryId === selectedCategoryFilter);
 
   const uniqueCategories = Array.from(
-    new Set(currentList.items.map(item => item.categoryId)
-  );
+  new Set(currentList.items.map(item => item.categoryId))
+);
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Poppins', sans-serif" }}>
