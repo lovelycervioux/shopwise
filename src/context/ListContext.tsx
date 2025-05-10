@@ -40,39 +40,36 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const categoriesKey = `shopwise_categories_${currentUser?.id || 'guest'}`;
 
   useEffect(() => {
-    const storedLists = localStorage.getItem(listsKey);
-    const storedCategories = localStorage.getItem(categoriesKey);
+    const loadData = () => {
+      const storedLists = localStorage.getItem(listsKey);
+      const storedCategories = localStorage.getItem(categoriesKey);
+      
+      if (storedLists) setLists(JSON.parse(storedLists));
+      if (storedCategories) {
+        setCategories(JSON.parse(storedCategories));
+      } else {
+        localStorage.setItem(categoriesKey, JSON.stringify(defaultCategories));
+      }
+    };
     
-    if (storedLists) setLists(JSON.parse(storedLists));
-    if (storedCategories) {
-      setCategories(JSON.parse(storedCategories));
-    } else {
-      setCategories(defaultCategories);
-      localStorage.setItem(categoriesKey, JSON.stringify(defaultCategories));
-    }
+    if (currentUser) loadData();
   }, [currentUser]);
 
   useEffect(() => {
-    localStorage.setItem(listsKey, JSON.stringify(lists));
-    if (currentList) {
-      setCurrentListState(lists.find(l => l.id === currentList.id) || null);
+    if (currentUser) {
+      localStorage.setItem(listsKey, JSON.stringify(lists));
     }
   }, [lists]);
 
   useEffect(() => {
-    localStorage.setItem(categoriesKey, JSON.stringify(categories));
+    if (currentUser) {
+      localStorage.setItem(categoriesKey, JSON.stringify(categories));
+    }
   }, [categories]);
 
   useEffect(() => {
-    if (currentList) {
-      const total = currentList.items.reduce(
-        (sum, item) => sum + (item.price * item.quantity), 
-        0
-      );
-      setTotalSpent(total);
-    } else {
-      setTotalSpent(0);
-    }
+    const total = currentList?.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+    setTotalSpent(total);
   }, [currentList]);
 
   const createList = (name: string, budget: number) => {
@@ -91,93 +88,65 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLists(prev => prev.map(list => 
       list.id === updatedList.id ? updatedList : list
     ));
-    if (currentList?.id === updatedList.id) {
-      setCurrentListState(updatedList);
-    }
+    if (currentList?.id === updatedList.id) setCurrentListState(updatedList);
   };
 
   const deleteList = (id: string) => {
     setLists(prev => prev.filter(list => list.id !== id));
-    if (currentList?.id === id) {
-      setCurrentListState(null);
-    }
+    if (currentList?.id === id) setCurrentListState(null);
   };
 
   const setCurrentList = (id: string | null) => {
-    if (!id) {
-      setCurrentListState(null);
-      return;
-    }
-    const list = lists.find(l => l.id === id) || null;
+    const list = id ? lists.find(l => l.id === id) || null : null;
     setCurrentListState(list);
   };
 
   const addItem = (item: Omit<GroceryItem, 'id'>) => {
     if (!currentList) return;
-    
-    const newItem: GroceryItem = {
-      ...item,
-      id: Date.now().toString(),
-    };
-    
-    const updatedList = {
-      ...currentList,
-      items: [...currentList.items, newItem],
-    };
-    
-    updateList(updatedList);
+    const newItem = { ...item, id: Date.now().toString() };
+    updateList({ ...currentList, items: [...currentList.items, newItem] });
   };
 
   const updateItem = (item: GroceryItem) => {
     if (!currentList) return;
-    
-    const updatedList = {
+    updateList({
       ...currentList,
-      items: currentList.items.map(i => 
-        i.id === item.id ? item : i
-      ),
-    };
-    
-    updateList(updatedList);
+      items: currentList.items.map(i => i.id === item.id ? item : i)
+    });
   };
 
   const removeItem = (id: string) => {
     if (!currentList) return;
-    
-    const updatedList = {
+    updateList({
       ...currentList,
-      items: currentList.items.filter(i => i.id !== id),
-    };
-    
-    updateList(updatedList);
+      items: currentList.items.filter(i => i.id !== id)
+    });
   };
 
   const addCategory = (name: string) => {
     const newCategory: Category = {
       id: Date.now().toString(),
       name,
-      isDefault: false,
+      isDefault: false
     };
     setCategories(prev => [...prev, newCategory]);
   };
 
   return (
-    <ListContext.Provider
-      value={{
-        lists,
-        categories,
-        currentList,
-        createList,
-        updateList,
-        deleteList,
-        setCurrentList,
-        addItem,
-        updateItem,
-        removeItem,
-        addCategory,
-        totalSpent,
-      }}
-    >
+    <ListContext.Provider value={{
+      lists,
+      categories,
+      currentList,
+      createList,
+      updateList,
+      deleteList,
+      setCurrentList,
+      addItem,
+      updateItem,
+      removeItem,
+      addCategory,
+      totalSpent
+    }}>
       {children}
     </ListContext.Provider>
   );
