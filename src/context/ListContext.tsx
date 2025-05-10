@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { ShoppingList, GroceryItem, Category } from '../types';
 import { defaultCategories } from '../data/initialData';
+import { useAuth } from './AuthContext';
 
 interface ListContextType {
   lists: ShoppingList[];
@@ -28,26 +29,36 @@ export const useList = () => {
 };
 
 export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const [currentList, setCurrentListState] = useState<ShoppingList | null>(null);
   const [totalSpent, setTotalSpent] = useState<number>(0);
 
+  // User-specific data keys
+  const listsKey = `shopwise_lists_${currentUser?.id || 'guest'}`;
+  const categoriesKey = `shopwise_categories_${currentUser?.id || 'guest'}`;
+
   useEffect(() => {
-    const storedLists = localStorage.getItem('shopwise_lists');
-    const storedCategories = localStorage.getItem('shopwise_categories');
+    const storedLists = localStorage.getItem(listsKey);
+    const storedCategories = localStorage.getItem(categoriesKey);
     
-    if (storedLists) {
-      setLists(JSON.parse(storedLists));
-    }
-    
+    if (storedLists) setLists(JSON.parse(storedLists));
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
     } else {
       setCategories(defaultCategories);
-      localStorage.setItem('shopwise_categories', JSON.stringify(defaultCategories));
+      localStorage.setItem(categoriesKey, JSON.stringify(defaultCategories));
     }
-  }, []);
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(listsKey, JSON.stringify(lists));
+  }, [lists]);
+
+  useEffect(() => {
+    localStorage.setItem(categoriesKey, JSON.stringify(categories));
+  }, [categories]);
 
   useEffect(() => {
     if (currentList) {
@@ -61,14 +72,7 @@ export const ListProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentList]);
 
-  useEffect(() => {
-    localStorage.setItem('shopwise_lists', JSON.stringify(lists));
-  }, [lists]);
-
-  useEffect(() => {
-    localStorage.setItem('shopwise_categories', JSON.stringify(categories));
-  }, [categories]);
-
+  // Keep all existing functions unchanged
   const createList = (name: string, budget: number) => {
     const newList: ShoppingList = {
       id: Date.now().toString(),
