@@ -70,22 +70,46 @@ export const Navigation = () => {
           <div className="hidden md:flex items-center space-x-4">
             {currentUser ? (
               <>
+                {/* Dashboard */}
                 <Link 
                   to="/dashboard" 
-                  className={`nav-link ${isActive('/dashboard') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/dashboard') 
+                      ? 'text-indigo-700 bg-indigo-50' 
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
+                  <House size={18} />
                   Dashboard
                 </Link>
+
+                {/* New List */}
                 <Link 
                   to="/new-list" 
-                  className={`nav-link ${isActive('/new-list') ? 'nav-link-active' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'}`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/new-list') 
+                      ? 'text-indigo-700 bg-indigo-50' 
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/80'
+                  }`}
                 >
+                  <SquarePlus size={18} />
                   New List
                 </Link>
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+
+                {/* User Profile */}
                 <div className="flex items-center ml-4 pl-4 border-l border-gray-200">
                   <Link 
                     to="/profile"
-                    className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full mr-3 hover:bg-indigo-100 transition"
+                    className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full hover:bg-indigo-100 transition"
                   >
                     {currentUser?.photoURL ? (
                       <img 
@@ -94,19 +118,12 @@ export const Navigation = () => {
                         className="w-8 h-8 rounded-full object-cover mr-2"
                       />
                     ) : (
-                      <User size={20} className="mr-1 text-indigo-600" />
+                      <User size={18} className="mr-1 text-indigo-600" />
                     )}
                     <span className="text-sm font-medium">
                       {currentUser.name}
                     </span>
                   </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 rounded-full text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
-                    title="Logout"
-                  >
-                    <LogOut size={18} />
-                  </button>
                 </div>
               </>
             ) : (
