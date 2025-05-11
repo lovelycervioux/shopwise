@@ -11,9 +11,9 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import NewList from './pages/NewList';
 import ListDetail from './pages/ListDetail';
+import Profile from './pages/Profile';
 import './index.css';
 
-// Protected route component that redirects to login if not authenticated
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
@@ -25,7 +25,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-// Public route that redirects to dashboard if already authenticated
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
   
@@ -36,7 +35,6 @@ const PublicRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-// Main App component with routes configuration
 function AppRoutes() {
   return (
     <Routes>
@@ -68,6 +66,11 @@ function AppRoutes() {
       <Route path="/list/:id" element={
         <ProtectedRoute>
           <ListDetail />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
