@@ -8,6 +8,8 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  updateProfile: (updates: { name?: string; photoURL?: string }) => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,7 +75,8 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
       id: Date.now().toString(),
       name,
       email,
-      password
+      password,
+      photoURL: ''
     };
 
     localStorage.setItem('shopwise_users', JSON.stringify([...users, user]));
@@ -91,8 +94,48 @@ const AuthStateManager: React.FC<{ children: React.ReactNode }> = ({ children })
     navigate('/', { replace: true });
   };
 
+  const updateProfile = async (updates: { name?: string; photoURL?: string }) => {
+    if (!currentUser) return;
+
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const updatedUser = {
+      ...currentUser,
+      name: updates.name || currentUser.name,
+      photoURL: updates.photoURL || currentUser.photoURL
+    };
+
+    const updatedUsers = users.map(u => 
+      u.id === currentUser.id ? updatedUser : u
+    );
+
+    localStorage.setItem('shopwise_users', JSON.stringify(updatedUsers));
+    localStorage.setItem('shopwise_user', JSON.stringify(updatedUser));
+    setCurrentUser(updatedUser);
+  };
+
+  const deleteAccount = async () => {
+    if (!currentUser) return;
+
+    const users: User[] = JSON.parse(localStorage.getItem('shopwise_users') || '[]');
+    const updatedUsers = users.filter(u => u.id !== currentUser.id);
+
+    localStorage.setItem('shopwise_users', JSON.stringify(updatedUsers));
+    localStorage.removeItem('shopwise_user');
+    localStorage.removeItem(`shopwise_lists_${currentUser.id}`);
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ 
+      currentUser, 
+      login, 
+      register, 
+      logout, 
+      isAuthenticated,
+      updateProfile,
+      deleteAccount
+    }}>
       {children}
     </AuthContext.Provider>
   );
