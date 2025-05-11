@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { useList } from '../context/ListContext';
-import { Calendar, CirclePlus, DollarSign, ShoppingBag } from 'lucide-react';
+import { Calendar, CirclePlus, ShoppingBag } from 'lucide-react';
 
 const Dashboard = () => {
   const { lists, setCurrentList } = useList();
@@ -23,7 +23,6 @@ const Dashboard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Calculate total spent for a list
   const calculateTotal = (listId: string) => {
     const list = lists.find(l => l.id === listId);
     if (!list) return 0;
@@ -31,7 +30,6 @@ const Dashboard = () => {
     return list.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
-  // Calculate budget status
   const getBudgetStatus = (listId: string) => {
     const list = lists.find(l => l.id === listId);
     if (!list) return { color: 'gray', text: 'Unknown' };
@@ -113,7 +111,7 @@ const Dashboard = () => {
                     
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-1.5">
-                        <DollarSign size={16} className="text-gray-400" />
+                        <span className="text-gray-400">₱</span>
                         <span className="text-sm text-gray-500">
                           {list.items.length} items
                         </span>
