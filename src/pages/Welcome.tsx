@@ -70,14 +70,14 @@ export const Welcome: React.FC = () => {
             <h3 className="font-semibold mb-4 text-gray-800" style={{ fontFamily: "'Outfit', sans-serif" }}>Weekly Groceries</h3>
             <div className="flex justify-between mb-3">
               <span className="text-gray-600">Budget</span>
-              <span className="font-medium">₱120.00</span>
+              <span className="font-medium">â‚±120.00</span>
             </div>
             <div className="progress-bar">
               <div className="progress-green w-3/4"></div>
             </div>
             <div className="flex justify-between mt-2">
-              <span className="text-sm text-gray-500">Spent: ₱90.45</span>
-              <span className="text-sm text-green-600 font-medium">Remaining: ₱29.55</span>
+              <span className="text-sm text-gray-500">Spent: â‚±90.45</span>
+              <span className="text-sm text-green-600 font-medium">Remaining: â‚±29.55</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -187,7 +187,7 @@ export const Welcome: React.FC = () => {
               <span className="font-bold text-xl" style={{ fontFamily: "'Outfit', sans-serif" }}>ShopWise</span>
             </div>
             <div className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} ShopWise. All rights reserved.
+              Â© {new Date().getFullYear()} ShopWise. All rights reserved.
             </div>
           </div>
         </div>
