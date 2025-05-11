@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useList } from '../context/ListContext';
 import { toast } from 'react-toastify';
-import { CircleAlert, DollarSign, Plus } from 'lucide-react';
+import { CircleAlert, Plus } from 'lucide-react';
 import { GroceryItem } from '../types';
 
 interface AddItemFormProps {
@@ -224,7 +224,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
             
             {previewTotal !== null && (
               <div className={`mt-4 p-3 rounded-lg ${wouldExceedBudget ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'} flex items-start gap-2 text-sm`}>
-                {wouldExceedBudget ? <CircleAlert size={16} className="mt-0.5" /> : <DollarSign size={16} className="mt-0.5" />}
+                {wouldExceedBudget ? <CircleAlert size={16} className="mt-0.5" /> : <span className="mt-0.5">₱</span>}
                 <div>
                   <p className="font-medium">
                     Item total: ₱{previewTotal.toFixed(2)}
