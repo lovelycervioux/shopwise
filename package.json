@@ -1,13 +1,4 @@
 {
-  "dependencies": {
-    "example-package": "^1.0.0"
-  },
-  "devDependencies": {
-    "example-dev-package": "^1.0.0"
-  }
-}
-
-{
   "name": "mocha-app",
   "private": true,
   "version": "0.0.0",
