@@ -87,7 +87,15 @@ export const Navigation = () => {
                     to="/profile"
                     className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full mr-3 hover:bg-indigo-100 transition"
                   >
-                    <User size={14} className="mr-1" />
+                    {currentUser?.photoURL ? (
+                      <img 
+                        src={currentUser.photoURL} 
+                        alt="Profile" 
+                        className="w-8 h-8 rounded-full object-cover mr-2"
+                      />
+                    ) : (
+                      <User size={20} className="mr-1 text-indigo-600" />
+                    )}
                     <span className="text-sm font-medium">
                       {currentUser.name}
                     </span>
@@ -137,10 +145,22 @@ export const Navigation = () => {
           <div className="pt-2 pb-4 space-y-1 px-4">
             {currentUser ? (
               <>
-                <div className="px-3 py-3 border-b border-gray-200 mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Signed in as {currentUser.email}
-                  </span>
+                <div className="px-3 py-3 border-b border-gray-200 mb-2 flex items-center gap-3">
+                  {currentUser?.photoURL ? (
+                    <img 
+                      src={currentUser.photoURL} 
+                      alt="Profile" 
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="p-2 bg-indigo-100 rounded-full">
+                      <User size={24} className="text-indigo-600" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Signed in as</p>
+                    <p className="text-sm text-gray-600">{currentUser.email}</p>
+                  </div>
                 </div>
                 <Link
                   to="/dashboard"
