@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useList } from '../context/ListContext';
 import { toast } from 'react-toastify';
-import { CircleAlert, Plus } from 'lucide-react';
+import { CircleAlert, Plus, X } from 'lucide-react';
 import { GroceryItem } from '../types';
 
 interface AddItemFormProps {
@@ -181,30 +181,30 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
               </div>
               
               {showNewCategory ? (
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2">
+                <div className="flex gap-2 items-center">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="New category name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm whitespace-normal break-words"
                   />
-                  <div className="flex gap-2 col-span-2 sm:col-span-1">
-                    <button
-                      type="button"
-                      onClick={handleAddCategory}
-                      className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-                    >
-                      Add
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowNewCategory(false)}
-                      className="w-full sm:w-auto px-3 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                    title="Add"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategory(false)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                    title="Cancel"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               ) : (
                 <Field
