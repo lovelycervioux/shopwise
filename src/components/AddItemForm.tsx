@@ -181,28 +181,30 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
               </div>
               
               {showNewCategory ? (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="New category name"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
                   />
-                  <button
-                    type="button"
-                    onClick={handleAddCategory}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewCategory(false)}
-                    className="px-3 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition text-sm"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex gap-2 col-span-2 sm:col-span-1">
+                    <button
+                      type="button"
+                      onClick={handleAddCategory}
+                      className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCategory(false)}
+                      className="w-full sm:w-auto px-3 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <Field
