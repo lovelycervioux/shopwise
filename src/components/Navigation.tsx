@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { House, LogOut, Menu, Settings, ShoppingCart, SquarePlus, User, X } from 'lucide-react';
+import { House, LogOut, Menu, ShoppingCart, SquarePlus, User, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Navigation = () => {
@@ -40,7 +40,6 @@ export const Navigation = () => {
   }, []);
 
   const handleLogout = () => {
-    // The logout function in AuthContext now handles navigation
     logout();
   };
 
@@ -84,12 +83,15 @@ export const Navigation = () => {
                   New List
                 </Link>
                 <div className="flex items-center ml-4 pl-4 border-l border-gray-200">
-                  <div className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full mr-3">
+                  <Link 
+                    to="/profile"
+                    className="flex items-center bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full mr-3 hover:bg-indigo-100 transition"
+                  >
                     <User size={14} className="mr-1" />
                     <span className="text-sm font-medium">
                       {currentUser.name}
                     </span>
-                  </div>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="p-2 rounded-full text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
@@ -155,6 +157,14 @@ export const Navigation = () => {
                 >
                   <SquarePlus size={18} />
                   New List
+                </Link>
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User size={18} />
+                  My Profile
                 </Link>
                 <button
                   onClick={() => {
