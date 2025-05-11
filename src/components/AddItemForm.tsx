@@ -181,30 +181,32 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onCancel, initialItem, onSave
               </div>
               
               {showNewCategory ? (
-                <div className="flex gap-2 items-center">
+                <div className="relative flex-1 min-w-[120px]">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="New category name"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm whitespace-normal break-words"
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm"
                   />
-                  <button
-                    type="button"
-                    onClick={handleAddCategory}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                    title="Add"
-                  >
-                    <Plus size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewCategory(false)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                    title="Cancel"
-                  >
-                    <X size={16} />
-                  </button>
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                    <button
+                      type="button"
+                      onClick={handleAddCategory}
+                      className="p-1 text-green-600 hover:bg-green-50 rounded transition"
+                      title="Add"
+                    >
+                      <Plus size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCategory(false)}
+                      className="p-1 text-red-600 hover:bg-red-50 rounded transition"
+                      title="Cancel"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <Field
