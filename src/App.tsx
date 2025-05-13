@@ -13,28 +13,19 @@ import Dashboard from './pages/Dashboard';
 import NewList from './pages/NewList';
 import ListDetail from './pages/ListDetail';
 import Profile from './pages/Profile';
-import { FirstVisitSplash } from './components/FirstVisitSplash';
+import { FirstVisitSplash } from './pages/FirstVisitSplash'; // Fixed import path
 import './index.css';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  
-  return children;
+  return isAuthenticated ? children : <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return children;
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
 };
 
 function AppRoutes() {
@@ -88,6 +79,7 @@ function App() {
   return (
     <AuthProvider>
       <ListProvider>
+        {/* Splash screen should be outside AnimatePresence */}
         <FirstVisitSplash />
         <AppRoutes />
         <ToastContainer 
