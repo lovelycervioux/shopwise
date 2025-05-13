@@ -7,11 +7,13 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
   const navigate = useNavigate();
   const [skipHover, setSkipHover] = useState(false);
 
+  // Animation cleanup
   useEffect(() => {
     const timer = setTimeout(onComplete, 5000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -55,7 +57,7 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
         className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors flex items-center gap-1"
         onClick={() => {
           localStorage.setItem('visited', 'true');
-          navigate('/welcome');
+          navigate('/');
         }}
         onHoverStart={() => setSkipHover(true)}
         onHoverEnd={() => setSkipHover(false)}
@@ -69,11 +71,8 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
 
       {/* Main Content */}
       <div className="text-center space-y-8">
-        {/* Logo Container */}
-        <motion.div
-          className="relative mx-auto w-fit"
-          variants={itemVariants}
-        >
+        {/* Animated Logo */}
+        <motion.div className="relative mx-auto w-fit" variants={itemVariants}>
           <div className="absolute inset-0 bg-white/10 rounded-full blur-2xl animate-pulse" />
           <motion.div
             className="p-6 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl backdrop-blur-lg border border-white/10 shadow-2xl"
@@ -115,11 +114,11 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
         </motion.div>
       </div>
 
-      {/* Floating Elements */}
+      {/* Floating Food Elements */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute pointer-events-none"
+          className="absolute pointer-events-none text-2xl"
           style={{
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
