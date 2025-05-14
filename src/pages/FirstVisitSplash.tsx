@@ -1,3 +1,4 @@
+// src/pages/FirstVisitSplash.tsx
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -6,42 +7,25 @@ import { ShoppingCart, X } from 'lucide-react';
 const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
   const navigate = useNavigate();
   const [skipHover, setSkipHover] = useState(false);
+  const floatingItems = ['🥦', '🥑', '🍎', '🥕', '🍞', '🥩'];
 
-  // Animation cleanup
   useEffect(() => {
     const timer = setTimeout(onComplete, 5000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
+      transition: { when: "beforeChildren", staggerChildren: 0.1 }
     },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    }
+    exit: { opacity: 0, transition: { duration: 0.5, ease: "easeInOut" } }
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 120
-      }
-    }
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 120 } }
   };
 
   return (
@@ -56,7 +40,7 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
       <motion.button
         className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors flex items-center gap-1"
         onClick={() => {
-          localStorage.setItem('visited', 'true');
+          onComplete();
           navigate('/');
         }}
         onHoverStart={() => setSkipHover(true)}
@@ -71,7 +55,6 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
 
       {/* Main Content */}
       <div className="text-center space-y-8">
-        {/* Animated Logo */}
         <motion.div className="relative mx-auto w-fit" variants={itemVariants}>
           <div className="absolute inset-0 bg-white/10 rounded-full blur-2xl animate-pulse" />
           <motion.div
@@ -83,28 +66,16 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
           </motion.div>
         </motion.div>
 
-        {/* Text Content */}
         <motion.div className="space-y-4" variants={containerVariants}>
-          <motion.h1
-            className="text-5xl font-bold text-white"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
-            variants={itemVariants}
-          >
+          <motion.h1 className="text-5xl font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }} variants={itemVariants}>
             ShopWise
           </motion.h1>
-          <motion.p
-            className="text-white/80 text-lg"
-            variants={itemVariants}
-          >
+          <motion.p className="text-white/80 text-lg" variants={itemVariants}>
             Smart Grocery Management
           </motion.p>
         </motion.div>
 
-        {/* Progress Bar */}
-        <motion.div
-          className="relative h-1 bg-white/20 rounded-full overflow-hidden mx-auto max-w-xs"
-          variants={itemVariants}
-        >
+        <motion.div className="relative h-1 bg-white/20 rounded-full overflow-hidden mx-auto max-w-xs" variants={itemVariants}>
           <motion.div
             className="absolute left-0 top-0 h-full bg-gradient-to-r from-white to-indigo-100"
             initial={{ width: 0 }}
@@ -114,10 +85,10 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
         </motion.div>
       </div>
 
-      {/* Floating Food Elements */}
-      {[...Array(6)].map((_, i) => (
+      {/* Floating Elements */}
+      {floatingItems.map((item, index) => (
         <motion.div
-          key={i}
+          key={index}
           className="absolute pointer-events-none text-2xl"
           style={{
             top: `${Math.random() * 100}%`,
@@ -134,7 +105,7 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
             delay: Math.random() * 2,
           }}
         >
-          {['🥦', '🥑', '🍎', '🥕', '🍞', '🥩'][i]}
+          {item}
         </motion.div>
       ))}
     </motion.div>
@@ -142,19 +113,11 @@ const SplashAnimation = ({ onComplete }: { onComplete: () => void }) => {
 };
 
 export const FirstVisitSplash = () => {
-  const [showSplash, setShowSplash] = useState(() => {
-    const visited = localStorage.getItem('visited');
-    return !visited;
-  });
-
-  const handleComplete = () => {
-    localStorage.setItem('visited', 'true');
-    setShowSplash(false);
-  };
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <AnimatePresence>
-      {showSplash && <SplashAnimation onComplete={handleComplete} />}
+      {showSplash && <SplashAnimation onComplete={() => setShowSplash(false)} />}
     </AnimatePresence>
   );
 };
